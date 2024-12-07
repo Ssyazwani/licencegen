@@ -53,7 +53,7 @@ int main() {
             cout << "Generated license number: " << setw(3) << setfill('0') << licenseNumber << 'M' << endl;
 
 
-            outFile << setw(3) << setfill('0') << licenseNumber << ","
+            outFile << setw(3) << setfill('0') << licenseNumber << 'M' << ","
                 << dateOfApplication << ","
                 << activity << "\n";
 
