@@ -12,6 +12,7 @@ int main() {
     int licenseNumber = 1;
     string dateOfApplication;
     string activity;
+    string line;
 
     ofstream outFile("license_numbers.csv");
 
@@ -22,13 +23,15 @@ int main() {
 
     outFile << "License Number,Date of Application,Activities\n";
 
-    cout << "Press Y to generate a new license number or X to exit.\n";
+    cout << "Press Y to generate a new license number, M to view the licence. Press X to exit.\n";
     cin >> b;
 
     time_t now = time(0); 
     tm ltm = {};  
     localtime_s(&ltm, &now);
     stringstream dateStream;
+    stringstream ss(line);  
+    string cell;
 
     while (true) {
         switch (b) {
@@ -64,6 +67,24 @@ int main() {
         case 'x':
             cout << "\nExiting program.\n";
             return 0;
+
+        case 'M':
+      {
+                ifstream inFile("license_numbers.csv");
+
+                if (!inFile) {
+                    cout << "Error opening file for reading.\n";
+                    return 1;
+                }
+
+                cout << "Existing license numbers:\n";
+                while (getline(inFile, line)) {
+                    cout << line << endl; 
+                }
+
+                inFile.close(); 
+            }
+          break;
 
         default:
             cout << "\nInvalid input. Please input Y to generate a new license number or X to exit.\n";
