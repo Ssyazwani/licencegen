@@ -8,5 +8,5 @@ to save data - function to update data and keep data
 
 Current Issues:
 Printing date again and again
-Activities has more fields to considered
+Activities has more fields to considered - maybe change to just types 
 To make a view database functions
