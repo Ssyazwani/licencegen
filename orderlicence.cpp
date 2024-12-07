@@ -1,48 +1,44 @@
-#include <random>
+
 #include <iostream>
-#include <stdio.h>
+#include <iomanip>  
 using namespace std;
 
-
-int main () {
-
-
-    int licencenumber=1;
+int main() {
     char b;
-    int x;
+    int licenseNumber = 1;
 
-    cout << "Press Y to generate new licence number\n";
+    cout << "Press Y to generate a new license number or X to exit.\n";
     cin >> b;
 
     while (true) {
         switch (b) {
         case 'Y':
         case 'y':
-              char *licencenum[] = { "001", "002", "003", 
-                        "004", "005", "006", "007",
-                        "008", "009", "010",
-                        "011", "012", "013" };
-  int i;
-  for (i=0; i<13; i++) {
-    printf("licencenum[%d] = %s\n", i, licencenum[i]);
-  }
+            if (licenseNumber > 999) {
+                cout << "All license numbers from 001 to 999 have been generated.\n";
+                return 0;  
+            }
+            
+            cout << "Generated license number: " << setw(3) << setfill('0') << licenseNumber << 'M' << endl;
+
+           
+            licenseNumber++;
             break;
-        case 'x':
+
         case 'X':
-            cout << "\nExiting program";
+        case 'x':
+            cout << "\nExiting program.\n";
             return 0;
+
         default:
-            cout << "\n Invalid input. Please input Y for new licence number\n";
+            cout << "\nInvalid input. Please input Y to generate a new license number or X to exit.\n";
             break;
         }
 
-        cout << "Press Y to generate new licence number\n";
-        cin >> b;
+        
+        if (licenseNumber <= 999) {
+            cout << "Press Y to generate a new license number or X to exit.\n";
+            cin >> b;
+        }
     }
-
-
-
-
-
-
 }
