@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <iomanip>  
 #include <fstream>
@@ -25,7 +24,7 @@ int main() {
         return 1;
     }
 
-    outFile << "License Number,Date of Application,Activities\n";
+    outFile << "License Number,Date of Application,Activities,UEN,Type,Payment Date,OIC\n";
 
     cout << "Press Y to generate a new license number, M to view the license. Press X to exit.\n";
     cin >> b;
@@ -73,15 +72,14 @@ int main() {
 
 
             cout << "Generated license number: " << setw(3) << setfill('0') << licenseNumber << 'M' << endl;
-
-
             outFile << setw(3) << setfill('0') << licenseNumber << 'M' << ","
-                << dateOfApplication << ","
-                << activity
-                << UENumber
-                << type
-                << paymentDate
-                << Oic << "\n";
+                << "\"" << dateOfApplication << "\","  
+                << "\"" << activity << "\","         
+                << "\"" << UENumber << "\","          
+                << "\"" << type << "\","             
+                << "\"" << paymentDate << "\","       
+                << "\"" << Oic << "\""               
+                << "\n";
 
             licenseNumber++;
             break;
