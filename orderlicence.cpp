@@ -14,9 +14,7 @@ int main() {
     string dateOfApplication;
     string activity;
     string UENumber;
-    string dateOfApplication;
     string type;
-    string activity;
     string paymentDate;
     string Oic;
 
@@ -49,7 +47,7 @@ int main() {
             }
 
             dateStream << setw(2) << ltm.tm_mday << "-"
-                 << (1 + ltm.tm_mon) << "-"
+                << (1 + ltm.tm_mon) << "-"
                 << ltm.tm_year;
             dateOfApplication = dateStream.str();
 
@@ -57,12 +55,29 @@ int main() {
             cin.ignore();
             getline(cin, activity);
 
+            cout << "Enter UEN for license number " << setw(3) << setfill('0') << licenseNumber << ": ";
+            cin.ignore();
+            getline(cin, UENumber);
+
+            cout << "Enter Type for license number " << setw(3) << setfill('0') << licenseNumber << ": ";
+            cin.ignore();
+            getline(cin, type);
+
+            cout << "Enter payment date if they have paid fees for license number " << setw(3) << setfill('0') << licenseNumber << ": ";
+            cin.ignore();
+            getline(cin, paymentDate);
+
+            cout << "Enter Officer In Charge if app is assigned " << setw(3) << setfill('0') << licenseNumber << ": ";
+            cin.ignore();
+            getline(cin, Oic);
+
+
             cout << "Generated license number: " << setw(3) << setfill('0') << licenseNumber << 'M' << endl;
 
-           
+
             outFile << setw(3) << setfill('0') << licenseNumber << 'M' << ","
                 << dateOfApplication << ","
-                << activity 
+                << activity
                 << UENumber
                 << type
                 << paymentDate
@@ -88,18 +103,18 @@ int main() {
             cout << "Existing license numbers:\n";
             cout << left << setw(20) << "License Number"
                 << setw(20) << "Date of Application"
-                << setw(30) << "Activities" 
-                << setw(40) << "UEN" 
-                << setw(50) << "Type" 
-                << setw(60) << "Payment Date" 
-                << setw(70) << "Assigned Officer" 
+                << setw(30) << "Activities"
+                << setw(40) << "UEN"
+                << setw(50) << "Type"
+                << setw(60) << "Payment Date"
+                << setw(70) << "Assigned Officer"
                 << endl;
-            cout << string(70, '-') << endl; 
+            cout << string(70, '-') << endl;
             string line;
-            getline(inFile, line);  
+            getline(inFile, line);
 
-           
-            while (getline(inFile, line)) {  
+
+            while (getline(inFile, line)) {
                 stringstream ss(line);
 
                 string licenseNumStr;
@@ -111,18 +126,18 @@ int main() {
                 string Oic;
 
 
-            
-                if (getline(ss, licenseNumStr, ',') && 
-                    getline(ss, dateOfApplication, ',') && 
-                    getline(ss, activity)) { 
 
-                    
+                if (getline(ss, licenseNumStr, ',') &&
+                    getline(ss, dateOfApplication, ',') &&
+                    getline(ss, activity)) {
+
+
                     if (licenseNumStr.empty() || dateOfApplication.empty() || activity.empty()) {
                         cout << "Warning: Skipping malformed line\n";
-                        continue; 
+                        continue;
                     }
 
-                    
+
                     cout << left << setw(20) << licenseNumStr
                         << setw(20) << dateOfApplication
                         << setw(30) << activity << endl;
@@ -132,7 +147,7 @@ int main() {
                 }
             }
 
-            inFile.close();  
+            inFile.close();
         }
         break;
 
