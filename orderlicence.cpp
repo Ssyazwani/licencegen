@@ -10,9 +10,15 @@ using namespace std;
 int main() {
     char b;
     int licenseNumber = 1;
+    string line;
     string dateOfApplication;
     string activity;
-    string line;
+    string UENumber;
+    string dateOfApplication;
+    string type;
+    string activity;
+    string paymentDate;
+    string Oic;
 
     ofstream outFile("license_numbers.csv");
 
@@ -42,9 +48,9 @@ int main() {
                 return 0;
             }
 
-            dateStream << setw(2) << setfill('0') << ltm.tm_mday << "-"
-                << setw(2) << setfill('0') << (1 + ltm.tm_mon) << "-"
-                << 1900 + ltm.tm_year;
+            dateStream << setw(2) << ltm.tm_mday << "-"
+                 << (1 + ltm.tm_mon) << "-"
+                << ltm.tm_year;
             dateOfApplication = dateStream.str();
 
             cout << "Enter activity for license number " << setw(3) << setfill('0') << licenseNumber << ": ";
@@ -53,10 +59,14 @@ int main() {
 
             cout << "Generated license number: " << setw(3) << setfill('0') << licenseNumber << 'M' << endl;
 
-            // Store as string in the file
+           
             outFile << setw(3) << setfill('0') << licenseNumber << 'M' << ","
                 << dateOfApplication << ","
-                << activity << "\n";
+                << activity 
+                << UENumber
+                << type
+                << paymentDate
+                << Oic << "\n";
 
             licenseNumber++;
             break;
@@ -75,37 +85,44 @@ int main() {
                 return 1;
             }
 
-            // Print the table header with formatting
             cout << "Existing license numbers:\n";
             cout << left << setw(20) << "License Number"
                 << setw(20) << "Date of Application"
-                << setw(30) << "Activities" << endl;
-            cout << string(70, '-') << endl; // Separator line
-
-            // Skip the header line
+                << setw(30) << "Activities" 
+                << setw(40) << "UEN" 
+                << setw(50) << "Type" 
+                << setw(60) << "Payment Date" 
+                << setw(70) << "Assigned Officer" 
+                << endl;
+            cout << string(70, '-') << endl; 
             string line;
-            getline(inFile, line);  // This will skip the first line (header)
+            getline(inFile, line);  
 
-            // Read and display each line from the file
-            while (getline(inFile, line)) {  // Read each line from the file
+           
+            while (getline(inFile, line)) {  
                 stringstream ss(line);
 
                 string licenseNumStr;
                 string dateOfApplication;
                 string activity;
+                string UENumber;
+                string type;
+                string paymentDate;
+                string Oic;
 
-                // Extract the license number, date of application, and activity
-                if (getline(ss, licenseNumStr, ',') && // First value: License Number
-                    getline(ss, dateOfApplication, ',') && // Second value: Date
-                    getline(ss, activity)) { // Third value: Activity
 
-                    // Ensure the data is not empty or malformed
+            
+                if (getline(ss, licenseNumStr, ',') && 
+                    getline(ss, dateOfApplication, ',') && 
+                    getline(ss, activity)) { 
+
+                    
                     if (licenseNumStr.empty() || dateOfApplication.empty() || activity.empty()) {
                         cout << "Warning: Skipping malformed line\n";
-                        continue; // Skip malformed lines
+                        continue; 
                     }
 
-                    // Display the data in a formatted manner
+                    
                     cout << left << setw(20) << licenseNumStr
                         << setw(20) << dateOfApplication
                         << setw(30) << activity << endl;
@@ -115,7 +132,7 @@ int main() {
                 }
             }
 
-            inFile.close();  // Close the file after reading
+            inFile.close();  
         }
         break;
 
