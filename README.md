@@ -7,6 +7,9 @@ if there are duplications ( multiple applications but using the same entity - fo
 to save data - function to update data and keep data 
 
 Current Issues:
-Printing date again and again
-Activities has more fields to considered - maybe change to just types 
+Printing date again and again,
+Activities has more fields to considered - maybe change to just types,
 To make a view database functions
+
+
+Considering a new project--> make java/railway website to input records and save data and show data 
