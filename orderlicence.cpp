@@ -9,7 +9,6 @@ using namespace std;
 int main() {
     char b;
     int licenseNumber = 1;
-    string line;
     string dateOfApplication;
     string activity;
     string UENumber;
@@ -33,8 +32,6 @@ int main() {
     tm ltm = {};
     localtime_s(&ltm, &now);
     stringstream dateStream;
-    stringstream ss(line);
-    string cell;
 
     while (true) {
         switch (b) {
@@ -45,9 +42,10 @@ int main() {
                 return 0;
             }
 
-            dateStream << setw(2) << ltm.tm_mday << "-"
-                << (1 + ltm.tm_mon) << "-"
-                << ltm.tm_year;
+            dateStream.str(""); // Clear the stringstream
+            dateStream << setw(2) << setfill('0') << ltm.tm_mday << "-"
+                       << setw(2) << setfill('0') << (1 + ltm.tm_mon) << "-"  // Add leading zero for month
+                       << (1900 + ltm.tm_year); // Add 1900 to tm_year
             dateOfApplication = dateStream.str();
 
             cout << "Enter activity for license number " << setw(3) << setfill('0') << licenseNumber << ": ";
@@ -55,31 +53,26 @@ int main() {
             getline(cin, activity);
 
             cout << "Enter UEN for license number " << setw(3) << setfill('0') << licenseNumber << ": ";
-            cin.ignore();
             getline(cin, UENumber);
 
             cout << "Enter Type for license number " << setw(3) << setfill('0') << licenseNumber << ": ";
-            cin.ignore();
             getline(cin, type);
 
             cout << "Enter payment date if they have paid fees for license number " << setw(3) << setfill('0') << licenseNumber << ": ";
-            cin.ignore();
             getline(cin, paymentDate);
 
             cout << "Enter Officer In Charge if app is assigned " << setw(3) << setfill('0') << licenseNumber << ": ";
-            cin.ignore();
             getline(cin, Oic);
-
 
             cout << "Generated license number: " << setw(3) << setfill('0') << licenseNumber << 'M' << endl;
             outFile << setw(3) << setfill('0') << licenseNumber << 'M' << ","
-                << "\"" << dateOfApplication << "\","  
-                << "\"" << activity << "\","         
-                << "\"" << UENumber << "\","          
-                << "\"" << type << "\","             
-                << "\"" << paymentDate << "\","       
-                << "\"" << Oic << "\""               
-                << "\n";
+                    << "\"" << dateOfApplication << "\","
+                    << "\"" << activity << "\","
+                    << "\"" << UENumber << "\","
+                    << "\"" << type << "\","
+                    << "\"" << paymentDate << "\","
+                    << "\"" << Oic << "\""
+                    << "\n";
 
             licenseNumber++;
             break;
@@ -108,9 +101,9 @@ int main() {
                 << setw(70) << "Assigned Officer"
                 << endl;
             cout << string(70, '-') << endl;
-            string line;
-            getline(inFile, line);
 
+            string line;
+            getline(inFile, line);  // Skip the header
 
             while (getline(inFile, line)) {
                 stringstream ss(line);
@@ -123,22 +116,21 @@ int main() {
                 string paymentDate;
                 string Oic;
 
-
-
                 if (getline(ss, licenseNumStr, ',') &&
                     getline(ss, dateOfApplication, ',') &&
-                    getline(ss, activity)) {
-
-
-                    if (licenseNumStr.empty() || dateOfApplication.empty() || activity.empty()) {
-                        cout << "Warning: Skipping malformed line\n";
-                        continue;
-                    }
-
+                    getline(ss, activity, ',') &&
+                    getline(ss, UENumber, ',') &&
+                    getline(ss, type, ',') &&
+                    getline(ss, paymentDate, ',') &&
+                    getline(ss, Oic)) {
 
                     cout << left << setw(20) << licenseNumStr
                         << setw(20) << dateOfApplication
-                        << setw(30) << activity << endl;
+                        << setw(30) << activity
+                        << setw(40) << UENumber
+                        << setw(50) << type
+                        << setw(60) << paymentDate
+                        << setw(70) << Oic << endl;
                 }
                 else {
                     cout << "Warning: Skipping malformed line\n";
@@ -148,7 +140,6 @@ int main() {
             inFile.close();
         }
         break;
-
 
         default:
             cout << "\nInvalid input. Please input Y to generate a new license number or X to exit.\n";
