@@ -12,4 +12,4 @@ Activities has more fields to considered - maybe change to just types,
 To make a view database functions
 
 
-Considering a new project--> make java/railway website to input records and save data and show data 
+Considering a work in progress project--> make java/railway website to input records and save data and show data 
