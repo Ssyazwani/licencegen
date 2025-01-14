@@ -142,12 +142,12 @@ int main() {
         break;
 
         default:
-            cout << "\nInvalid input. Please input Y to generate a new license number or X to exit.\n";
+            cout << "\nInvalid input. Press Y to generate a new license number, M to view the license. Press X to exit.\n";
             break;
         }
 
         if (licenseNumber <= 999) {
-            cout << "Press Y to generate a new license number or X to exit.\n";
+            cout << "Press Y to generate a new license number, M to view the license. Press X to exit.\n";
             cin >> b;
         }
     }
