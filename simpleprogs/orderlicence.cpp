@@ -42,10 +42,10 @@ int main() {
                 return 0;
             }
 
-            dateStream.str(""); // Clear the stringstream
+            dateStream.str(""); 
             dateStream << setw(2) << setfill('0') << ltm.tm_mday << "-"
-                       << setw(2) << setfill('0') << (1 + ltm.tm_mon) << "-"  // Add leading zero for month
-                       << (1900 + ltm.tm_year); // Add 1900 to tm_year
+                       << setw(2) << setfill('0') << (1 + ltm.tm_mon) << "-"  
+                       << (1900 + ltm.tm_year); 
             dateOfApplication = dateStream.str();
 
             cout << "Enter activity for license number " << setw(3) << setfill('0') << licenseNumber << ": ";
@@ -103,7 +103,7 @@ int main() {
             cout << string(70, '-') << endl;
 
             string line;
-            getline(inFile, line);  // Skip the header
+            getline(inFile, line);  
 
             while (getline(inFile, line)) {
                 stringstream ss(line);
