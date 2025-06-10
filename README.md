@@ -20,7 +20,7 @@ This is a simple C++ console application that manages licenses using SQLite as t
 3. Choose from the menu:
    - `1` to create a new license.
    - `2` to search licenses by organisation.
-   - `3` to view licenses by email.
+   - `3` to view license number by email.
    - `4` to edit licenses.
    - `5` to exit.
 4. When creating a license, enter your name and organization.
