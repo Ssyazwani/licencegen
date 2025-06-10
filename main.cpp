@@ -252,7 +252,7 @@ int main() {
 
     int choice;
     do {
-        cout << "1. Create new license\n2. Search licenses\n3. Edit licenses\n4. View Licence Number\n5. Exit\nEnter choice: ";
+        cout << "1. Create new license\n2. Search licenses \n3. Search license number by email\n4. Edit Licence Details\n5. Exit\nEnter choice: ";
         cin >> choice;
         cin.ignore(); 
 
@@ -264,10 +264,10 @@ int main() {
                 searchLicense(db);
                 break;
             case 3:
-                editLicense(db);
+                viewLicenseKeyByEmail(db);
                 break;
             case 4:
-                viewLicenseKeyByEmail(db);
+                editLicense(db);
                 break;
             case 5:
                 cout << "Exiting...\n";
