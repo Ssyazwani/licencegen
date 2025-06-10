@@ -21,54 +21,73 @@ string generateLicenseKey(const string& name, const string& org) {
     return ss.str();
 }
 
-void ensureOrganizationColumn(sqlite3* db) {
-    const char* checkColumnSQL = "PRAGMA table_info(licenses);";
-    bool hasOrganization = false;
+void ensureColumn(sqlite3* db, const std::string& tableName, const std::string& columnName, const std::string& columnType) {
+    std::string checkColumnSQL = "PRAGMA table_info(" + tableName + ");";
+    bool hasColumn = false;
 
     sqlite3_stmt* stmt;
-    if (sqlite3_prepare_v2(db, checkColumnSQL, -1, &stmt, nullptr) == SQLITE_OK) {
+    if (sqlite3_prepare_v2(db, checkColumnSQL.c_str(), -1, &stmt, nullptr) == SQLITE_OK) {
         while (sqlite3_step(stmt) == SQLITE_ROW) {
-            string colName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
-            if (colName == "organization") {
-                hasOrganization = true;
+            std::string colName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            if (colName == columnName) {
+                hasColumn = true;
                 break;
             }
         }
         sqlite3_finalize(stmt);
     }
 
-    if (!hasOrganization) {
-        const char* alterTableSQL = "ALTER TABLE licenses ADD COLUMN organization TEXT;";
-        char* errMsg;
-        int rc = sqlite3_exec(db, alterTableSQL, 0, 0, &errMsg);
+    if (!hasColumn) {
+        std::string alterTableSQL = "ALTER TABLE " + tableName + " ADD COLUMN " + columnName + " " + columnType + ";";
+        char* errMsg = nullptr;
+        int rc = sqlite3_exec(db, alterTableSQL.c_str(), nullptr, nullptr, &errMsg);
         if (rc != SQLITE_OK) {
-            cerr << "Failed to add 'organization' column: " << errMsg << "\n";
+            std::cerr << "Failed to add '" << columnName << "' column: " << errMsg << "\n";
             sqlite3_free(errMsg);
         } else {
-            cout << "'organization' column added to licenses table.\n";
+            std::cout << "'" << columnName << "' column added to " << tableName << " table.\n";
         }
     }
 }
 
+
 void createLicense(sqlite3* db) {
-    string name, org;
+    string name, org, activity, date, email;
     cout << "Enter your name: ";
     getline(cin, name);
     cout << "Enter your organization: ";
     getline(cin, org);
+    cout << "Enter your activity: ";
+    getline(cin, activity);
+    cout << "Enter your date: ";
+    getline(cin, date);
+    cout << "Enter your email: ";
+    getline(cin, email);
 
     string licenseKey = generateLicenseKey(name, org);
-    string sql = "INSERT INTO licenses (username, organization, licenseKey) VALUES ('" 
-                 + name + "', '" + org + "', '" + licenseKey + "');";
 
-    char* errMsg;
-    int rc = sqlite3_exec(db, sql.c_str(), 0, 0, &errMsg);
-    if (rc != SQLITE_OK) {
-        cerr << "Insert error: " << errMsg << "\n";
-        sqlite3_free(errMsg);
+    const char* sql = "INSERT INTO licenses (username, organization, activity, date, email, licenseKey) VALUES (?, ?, ?, ?, ?, ?);";
+    sqlite3_stmt* stmt;
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) {
+        sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 2, org.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 3, activity.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 4, date.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 5, email.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 6, licenseKey.c_str(), -1, SQLITE_TRANSIENT);
+
+        int rc = sqlite3_step(stmt);
+        if (rc != SQLITE_DONE) {
+            cerr << "Insert error: " << sqlite3_errmsg(db) << "\n";
+        } else {
+            cout << "License created successfully:\n";
+            cout << "Name: " << name << ", Organization: " << org << ", Activity: " << activity 
+                 << ", Date: " << date << ", Email: " << email << ", License Key: " << licenseKey << "\n\n";
+        }
+        sqlite3_finalize(stmt);
     } else {
-        cout << "License created successfully:\n";
-        cout << "Name: " << name << ", Organization: " << org << ", License Key: " << licenseKey << "\n\n";
+        cerr << "Failed to prepare statement\n";
     }
 }
 
@@ -86,6 +105,116 @@ void searchLicense(sqlite3* db) {
     }
 }
 
+void editLicense(sqlite3* db) {
+    string inputEmail;
+    cout << "Enter the email to edit: ";
+    getline(cin, inputEmail);
+
+    const char* selectSQL = "SELECT username, organization, activity, date, licenseKey, email FROM licenses WHERE email = ?;";
+    sqlite3_stmt* stmt;
+
+    if (sqlite3_prepare_v2(db, selectSQL, -1, &stmt, nullptr) != SQLITE_OK) {
+        cerr << "Failed to prepare select statement\n";
+        return;
+    }
+
+    sqlite3_bind_text(stmt, 1, inputEmail.c_str(), -1, SQLITE_TRANSIENT);
+
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_ROW) {
+        cout << "Email not found.\n";
+        sqlite3_finalize(stmt);
+        return;
+    }
+
+    string currentName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+    string currentOrg = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+    string currentActivity = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+    string currentDate = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+    string licenseKey = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
+    string currentEmail = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5));
+    sqlite3_finalize(stmt);
+
+    cout << "License Key: " << licenseKey << "\n";
+    cout << "Current values (press enter to keep unchanged):\n";
+
+    cout << "Name [" << currentName << "]: ";
+    string name; 
+    getline(cin, name);
+    if (name.empty()) name = currentName;
+
+    cout << "Organization [" << currentOrg << "]: ";
+    string org; 
+    getline(cin, org);
+    if (org.empty()) org = currentOrg;
+
+    cout << "Activity [" << currentActivity << "]: ";
+    string activity;
+    getline(cin, activity);
+    if (activity.empty()) activity = currentActivity;
+
+    cout << "Date [" << currentDate << "]: ";
+    string date;
+    getline(cin, date);
+    if (date.empty()) date = currentDate;
+
+    cout << "Email [" << currentEmail << "]: ";
+    string newEmail;
+    getline(cin, newEmail);
+    if (newEmail.empty()) newEmail = currentEmail;
+
+    const char* updateSQL = "UPDATE licenses SET username = ?, organization = ?, activity = ?, date = ?, email = ? WHERE licenseKey = ?;";
+    if (sqlite3_prepare_v2(db, updateSQL, -1, &stmt, nullptr) != SQLITE_OK) {
+        cerr << "Failed to prepare update statement\n";
+        return;
+    }
+
+    sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, org.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 3, activity.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 4, date.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 5, newEmail.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 6, licenseKey.c_str(), -1, SQLITE_TRANSIENT);
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        cerr << "Update error: " << sqlite3_errmsg(db) << "\n";
+    } else {
+        cout << "License updated successfully.\n";
+    }
+
+    sqlite3_finalize(stmt);
+}
+    void viewLicenseKeyByEmail(sqlite3* db) {
+    string email;
+    cout << "Enter the email to view license key: ";
+    getline(cin, email);
+
+    const char* selectSQL = "SELECT licenseKey FROM licenses WHERE email = ?;";
+    sqlite3_stmt* stmt;
+
+    if (sqlite3_prepare_v2(db, selectSQL, -1, &stmt, nullptr) != SQLITE_OK) {
+        cerr << "Failed to prepare statement.\n";
+        return;
+    }
+
+    sqlite3_bind_text(stmt, 1, email.c_str(), -1, SQLITE_TRANSIENT);
+
+    int rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW) {
+        const unsigned char* licenseKey = sqlite3_column_text(stmt, 0);
+        cout << "License Key: " << licenseKey << "\n";
+    } else {
+        cout << "No license key found for that email.\n";
+    }
+
+    sqlite3_finalize(stmt);
+}
+
+
+
+
+
 int main() {
     sqlite3* db;
     char* errMsg = 0;
@@ -101,6 +230,9 @@ int main() {
         "CREATE TABLE IF NOT EXISTS licenses ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
         "username TEXT NOT NULL,"
+        "activity TEXT NOT NULL,"
+        "date TEXT NOT NULL,"
+        "email TEXT NOT NULL,"
         "licenseKey TEXT NOT NULL);"; 
 
     rc = sqlite3_exec(db, createTableSQL, 0, 0, &errMsg);
@@ -112,11 +244,15 @@ int main() {
     }
 
    
-    ensureOrganizationColumn(db);
+    ensureColumn(db, "licenses", "organization", "TEXT");
+    ensureColumn(db, "licenses", "activity", "TEXT");
+    ensureColumn(db, "licenses", "date", "TEXT");
+    ensureColumn(db, "licenses", "email", "TEXT");
+
 
     int choice;
     do {
-        cout << "1. Create new license\n2. Search licenses\n3. Exit\nEnter choice: ";
+        cout << "1. Create new license\n2. Search licenses \n3. Search license number by email\n4. Edit Licence Details\n5. Exit\nEnter choice: ";
         cin >> choice;
         cin.ignore(); 
 
@@ -128,6 +264,12 @@ int main() {
                 searchLicense(db);
                 break;
             case 3:
+                viewLicenseKeyByEmail(db);
+                break;
+            case 4:
+                editLicense(db);
+                break;
+            case 5:
                 cout << "Exiting...\n";
                 break;
             default:
